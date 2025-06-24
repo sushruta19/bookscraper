@@ -54,11 +54,17 @@ ROBOTSTXT_OBEY = True
 #    "bookscraper.middlewares.BookscraperSpiderMiddleware": 543,
 #}
 
+SCRAPEOPS_FAKE_BROWSER_HEADER_ENABLED = True
+SCRAPEOPS_FAKE_BROWSER_HEADER_ENDPOINT = 'https://headers.scrapeops.io/v1/browser-headers'
+SCRAPEOPS_NUM_RESULTS = 60
+
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
+DOWNLOADER_MIDDLEWARES = {
 #    "bookscraper.middlewares.BookscraperDownloaderMiddleware": 543,
-#}
+    # "bookscraper.middlewares.ScrapeOpsFakeUserAgentMiddleware":400, 
+   "bookscraper.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": 402  
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
