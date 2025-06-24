@@ -58,12 +58,22 @@ SCRAPEOPS_FAKE_BROWSER_HEADER_ENABLED = True
 SCRAPEOPS_FAKE_BROWSER_HEADER_ENDPOINT = 'https://headers.scrapeops.io/v1/browser-headers'
 SCRAPEOPS_NUM_RESULTS = 60
 
+# free proxies taken from spys.one
+ROTATING_PROXY_LIST = [
+    '182.253.7.146:8180',
+    '47.236.37.129:18081',
+    '49.150.57.23:8082'
+]
+# ROTATING_PROXY_LIST_PATH = '/my/path/proxies.txt'
+
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-#    "bookscraper.middlewares.BookscraperDownloaderMiddleware": 543,
+   "bookscraper.middlewares.BookscraperDownloaderMiddleware": 543,
     # "bookscraper.middlewares.ScrapeOpsFakeUserAgentMiddleware":400, 
-   "bookscraper.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": 402  
+   "bookscraper.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": 402,
+   'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
+   'rotating_proxies.middlewares.BanDetectionMiddleware': 620  
 }
 
 # Enable or disable extensions
