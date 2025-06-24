@@ -7,8 +7,7 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 
-
-class BookscraperPipeline:
+class CleanDataPipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
 
@@ -61,3 +60,98 @@ class BookscraperPipeline:
             adapter['rating'] = 5
         
         return item
+
+# putting data in mysql db server
+import mysql.connector
+import os
+from dotenv import load_dotenv
+
+class SaveToMySQLPipeline:
+    def __init__(self):
+        load_dotenv()
+        try:
+            print("Connecting with SQL...")
+            self.conn = mysql.connector.connect(
+                host = os.getenv('MYSQL_HOST'),
+                user = os.getenv('MYSQL_USER'),
+                password = os.getenv('MYSQL_PASSWORD'),
+                database = os.getenv('MYSQL_DATABASE'),
+                use_pure = True
+            )
+        except Exception as e:
+            print("MySQL connection error:", repr(e))
+            raise SystemExit
+        print("SQL Connection Successful!")
+        self.cur = self.conn.cursor()
+
+        self.cur.execute(
+        """CREATE TABLE IF NOT EXISTS books(
+            id INT NOT NULL auto_increment,
+            url VARCHAR(255),
+            title TINYTEXT,
+            upc VARCHAR(255),
+            product_type VARCHAR(255),
+            category VARCHAR(100),
+            price DECIMAL,
+            tax DECIMAL,
+            price_excl_tax DECIMAL,
+            price_incl_tax DECIMAL,
+            availability INT,
+            num_reviews INT,
+            rating INT,
+            description TEXT,
+            PRIMARY KEY(id)
+            )""")
+    
+    def process_item(self, item, spider):
+        #insert sql commands
+        self.cur.execute("""
+            INSERT INTO books (
+            url,
+            title,
+            upc,
+            product_type,
+            category,
+            price,
+            tax,
+            price_excl_tax,
+            price_incl_tax,
+            availability,
+            num_reviews,
+            rating,
+            description
+            ) VALUES (
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s)""", (
+            item["url"],
+            item["title"],
+            item["upc"],
+            item["product_type"],
+            item["category"],
+            item["price"],
+            item["tax"],
+            item["price_excl_tax"],
+            item["price_incl_tax"],
+            item["availability"],
+            item["num_reviews"],
+            item["rating"],
+            str(item["description"] or "No Description")  
+        ))
+
+        self.conn.commit()
+        return item #returning item since it can be used by other pipeline
+    
+    def close_spider(self, spider):
+        self.cur.close()
+        self.conn.close()

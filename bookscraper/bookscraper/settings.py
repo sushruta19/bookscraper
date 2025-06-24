@@ -12,6 +12,10 @@ BOT_NAME = "bookscraper"
 SPIDER_MODULES = ["bookscraper.spiders"]
 NEWSPIDER_MODULE = "bookscraper.spiders"
 
+# FEEDS = {
+#     'booksCleanData.json' : {'format': 'json'} 
+# }
+
 ADDONS = {}
 
 
@@ -65,7 +69,8 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   "bookscraper.pipelines.BookscraperPipeline": 300,
+   "bookscraper.pipelines.CleanDataPipeline": 300,
+   "bookscraper.pipelines.SaveToMySQLPipeline": 310 #numbers are precedence(order)
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -91,3 +96,6 @@ ITEM_PIPELINES = {
 
 # Set settings whose default value is deprecated to a future-proof value
 FEED_EXPORT_ENCODING = "utf-8"
+
+# LOG_LEVEL = 'ERROR'
+# LOG_LEVEL = 'INFO'
