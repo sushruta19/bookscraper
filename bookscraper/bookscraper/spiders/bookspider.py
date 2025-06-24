@@ -1,5 +1,5 @@
 import scrapy
-
+from bookscraper.items import BookItem
 
 class BookspiderSpider(scrapy.Spider):
     name = "bookspider"
@@ -23,17 +23,21 @@ class BookspiderSpider(scrapy.Spider):
 
     def parse_book_page(self, response):
         table_rows = response.css('table tr')
-        yield {
-            'url': response.url,
-            'title': response.css('.product_page h1::text').get(),
-            'product_type': table_rows[1].css('td::text').get(),
-            'price_excl_tax': table_rows[2].css('td::text').get(),
-            'price_incl_tax': table_rows[3].css('td::text').get(),
-            'tax' : table_rows[4].css('td::text').get(),
-            'availability': table_rows[5].css('td::text').get(),
-            'num_reviews': table_rows[6].css('td::text').get(),
-            'rating': response.css('p.star-rating::attr(class)').get().split()[-1],
-            'category': response.css('ul.breadcrumb li:nth-child(3) a::text').get(),
-            'description': response.css('div#product_description + p::text').get(),
-            'price': response.css('p.price_color ::text').get()
-        }
+        book_item = BookItem()
+        # this not only extracts the data
+        # it also decides the order of fields in json or csv file
+        book_item['url']= response.url
+        book_item['title']= response.css('.product_page h1::text').get()
+        book_item['upc'] = table_rows[0].css('td::text').get()
+        book_item['product_type']= table_rows[1].css('td::text').get()
+        book_item['category']= response.css('ul.breadcrumb li:nth-child(3) a::text').get()
+        book_item['price']= response.css('p.price_color ::text').get()
+        book_item['tax'] = table_rows[4].css('td::text').get()
+        book_item['price_excl_tax']= table_rows[2].css('td::text').get()
+        book_item['price_incl_tax']= table_rows[3].css('td::text').get()        
+        book_item['availability']= table_rows[5].css('td::text').get()
+        book_item['num_reviews']= table_rows[6].css('td::text').get()
+        book_item['rating']= response.css('p.star-rating::attr(class)').get().split()[-1]
+        book_item['description']= response.css('div#product_description + p::text').get()
+        
+        yield book_item
