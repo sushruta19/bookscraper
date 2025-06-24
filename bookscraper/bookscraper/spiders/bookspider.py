@@ -5,12 +5,19 @@ class BookspiderSpider(scrapy.Spider):
     name = "bookspider"
     allowed_domains = ["books.toscrape.com"]
     start_urls = ["https://books.toscrape.com"]
+    
+    # custom_settings = {
+    #     'FEEDS' : {
+    #         'booksCleanData.json' : {'format': 'json', 'overwrite': True} 
+    #     }
+    # }
 
     def parse(self, response):
         books = response.css('article.product_pod')
         for book in books:
             relative_url = book.css('h3 a::attr(href)').get()
-            book_url = "https://books.toscrape.com/" + relative_url
+            # book_url = "https://books.toscrape.com/" + relative_url
+            book_url = response.urljoin(relative_url)
             yield response.follow(book_url, callback=self.parse_book_page)
             
         next_page = response.css('li.next a::attr(href)').get()
